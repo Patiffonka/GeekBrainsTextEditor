@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/hlp">
+        <file>help.txt</file>
+    </qresource>
+    <qresource prefix="/translations">
+        <file>QtLangage_en.qm</file>
+        <file>QtLangage_ru.qm</file>
+    </qresource>
+</RCC>
