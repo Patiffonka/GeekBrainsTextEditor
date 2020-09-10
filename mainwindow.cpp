@@ -6,7 +6,11 @@
 #include <QDesktopServices>
 #include <QHBoxLayout>
 #include <QPlainTextEdit>
-#include "toolswidget.h"
+#include <QMdiSubWindow>
+#include <QFileInfo>
+#include <QPrinter>
+#include <QPrintDialog>
+
 
 
 
@@ -17,8 +21,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    fileName = "unassigned";
-    isSaved = true;
+
+    saveAsMode = false;
 
     //Translation menu setup
     windowtitle = tr("New file");
@@ -38,16 +42,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     QHBoxLayout *layout = new QHBoxLayout(this);
 
-    plainTextEdit = new QPlainTextEdit(this);
-    connect(plainTextEdit, SIGNAL(textChanged()), this, SLOT(onTextChanged()));
+    mdiArea = new QMdiArea(this);
 
-//#Tool menu for another lession
-//    toolsWidget *tools = new toolsWidget(this);
+    NewDocument();
 
-    layout->addWidget(plainTextEdit);
+    mdiArea->setViewMode(QMdiArea::TabbedView);
+    mdiArea->setTabsClosable(true);
+    connect (mdiArea, &QMdiArea::subWindowActivated, this, &MainWindow::changePlaineTextWindow);
 
-//    layout->addWidget(tools);
-//    connect (tools, SIGNAL(buttonSignal(QString)), this, SLOT(on_tool_signal(QString)));
+    layout->addWidget(mdiArea);
 
     QWidget *wgt = new QWidget(this);
     wgt->setLayout(layout);
@@ -55,41 +58,61 @@ MainWindow::MainWindow(QWidget *parent)
 
     setupPalette();
     qApp->setPalette(*whitePalette);
+
+    //setStyleSheet("QTabBar::tab { max-width: 100px; }");
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     event->ignore();
-    if (!isSaved)
+    qDebug()<<"CLOSE APP";
+    if (mdiArea->subWindowList().count() > 0)
     {
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this, tr("Unsaved document"), tr("All unsaved changes will be lost.\nDo you want save document?"),
-                                    QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
-        if (reply == QMessageBox::Yes)
+        bool needSave = false;
+        for (int i = 0; i < mdiArea->subWindowList().count(); ++i)
         {
-            on_actionSave_triggered();
-            event->accept();
+            myTextPlane* textPlane = (myTextPlane*)mdiArea->subWindowList().at(i)->widget();
+            if (!textPlane->getIsSaved())
+            {
+                needSave = true;
+                qDebug()<<"Unsaved documents";
+                break;
+            }
         }
-        else if (reply == QMessageBox::No)
+
+        if (needSave)
         {
-            event->accept();
-        }
-        else if (reply == QMessageBox::Cancel)
-        {
-            event->ignore();
-        }
-    }
-    else event->accept();
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this, tr("Unsaved documents"), tr("You have unsaved documents. Do you want to save all documents?"),
+                                                    QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
+            if (reply == QMessageBox::Yes)
+            {
+                for (int i = 0; i < mdiArea->subWindowList().count(); ++i)
+                {
+                    myTextPlane* textPlane = (myTextPlane*)mdiArea->subWindowList().at(i)->widget();
+                    textPlane->save();
+                }
+            }
+            else if (reply == QMessageBox::No)
+            {
+                event->accept();
+            }
+            else if (reply == QMessageBox::Cancel)
+            {
+                event->ignore();
+            }
+        } else event->accept();
+    } else event->accept();
 }
 
-void MainWindow::setupPalette()
+void MainWindow::setupPalette()            //NEED TO SETUP HINTS AND MDIAREA
 {
     //DARK
     darkPalette = new QPalette();
     darkPalette->setColor(QPalette::Window, QColor(53,53,53));
-    darkPalette->setColor(QPalette::WindowText, Qt::white);
+    darkPalette->setColor(QPalette::WindowText, Qt::black);
     darkPalette->setColor(QPalette::Base, QColor(25,25,25));
-    darkPalette->setColor(QPalette::Text, Qt::white);
+    darkPalette->setColor(QPalette::Text, Qt::gray);
 
     //WHITE
     whitePalette = new QPalette();
@@ -106,11 +129,20 @@ MainWindow::~MainWindow()
 
 void MainWindow::NewDocument()
 {
-    plainTextEdit->clear();
-    fileName = "unassigned";
-    isSaved = true;
-    windowtitle = tr("New file");
-    this->setWindowTitle(windowtitle);
+    QMdiSubWindow* newSubwindow = mdiArea->addSubWindow(new myTextPlane);
+    newSubwindow->show();
+    myTextPlane* newPlainText = (myTextPlane*)newSubwindow->widget();
+    newPlainText->setIsSaved(true);
+    newPlainText->setFileName("unassigned");
+    newPlainText->setPtr(newPlainText);
+    QString newDocName = tr("New document");
+    newPlainText->setNumber(mdiArea->subWindowList().count());
+    newDocName += " ";
+    newDocName += QString::number(newPlainText->getNumber());
+    newPlainText->setWindowTitle(newDocName);
+    setWindowTitle(newPlainText->windowTitle());
+    connect (newPlainText, &QPlainTextEdit::textChanged, this, &MainWindow::onTextChanged);
+    connect (newPlainText, &myTextPlane::closed, this, &MainWindow::planeClosed);
 }
 
 
@@ -121,23 +153,7 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::on_actionNew_triggered()
 {
-    if (!isSaved)
-    {
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this, tr("Unsaved document"), tr("All unsaved changes will be lost.\nAre you sure you want to create new document?"),
-                                    QMessageBox::Yes|QMessageBox::No);
-        if (reply == QMessageBox::Yes) {
-            QMessageBox::StandardButton reply2;
-            reply2 = QMessageBox::question(this, tr("Unsaved document"), tr("Do you want to save document?"),
-                                        QMessageBox::Yes|QMessageBox::No);
-            if (reply2 == QMessageBox::Yes)
-            {
-                on_actionSave_triggered();
-                NewDocument();
-            }
-            else NewDocument();
-        } else return;
-    } else NewDocument();
+    NewDocument();
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -145,60 +161,48 @@ void MainWindow::on_actionOpen_triggered()
     QString newfileName = QFileDialog::getOpenFileName(this, tr("Open"));
     if (newfileName.isEmpty()) return;
     else {
+
         fileName = newfileName;
         file.setFileName(fileName);
         if (file.open(QIODevice::ReadWrite)) {
+
+            QMdiSubWindow* newSubwindow = mdiArea->addSubWindow(new myTextPlane);
+            newSubwindow->show();
+            myTextPlane* newPlainText = (myTextPlane*)newSubwindow->widget();
+            TextPlains.push_back(newPlainText);
+
+            newPlainText->setFileName(fileName);
+            QFileInfo fileInfo(file);
+            newPlainText->setWindowTitle(fileInfo.fileName());
+
             QByteArray ba = file.readAll();
-            plainTextEdit->setPlainText(ba.data());
-            plainTextEdit->moveCursor(QTextCursor::End);
-            windowtitle = fileName;
-            this->setWindowTitle(windowtitle);
+            newPlainText->setPlainText(ba.data());
+            newPlainText->moveCursor(QTextCursor::End);
             file.close();
+            newPlainText->setIsSaved(true);
+            connect (newPlainText, &QPlainTextEdit::textChanged, this, &MainWindow::onTextChanged);
         }
     }
 }
 
 void MainWindow::on_actionSave_triggered()
 {
-    if (!isSaved) {
-        if (fileName != "unassigned"){
-            windowtitle = fileName;
-            this->setWindowTitle(windowtitle);
-            file.setFileName(fileName);
-            if (file.open(QIODevice::WriteOnly)){
 
-                str = plainTextEdit->toPlainText();
-                QByteArray ba = str.toUtf8();
+    myTextPlane* plainText = (myTextPlane*)mdiArea->activeSubWindow()->widget();
 
-                if (file.write(ba, ba.length())!= -1) {
-                    this->setWindowTitle(windowtitle);
-                    file.close();
-                    isSaved = true;
-                } else
+    plainText->save();
 
-                {
-                    QMessageBox msgBox;
-                    msgBox.setText(tr("Can't write file"));
-                    msgBox.exec();
-                }
-
-            }
-
-        } else MainWindow::on_actionSave_As_triggered();
-
-    } else qDebug() << "Already saved";
+    qDebug()<<"ACTION SAVE";
 
 }
 
 void MainWindow::on_actionSave_As_triggered()
 {
-    QString newFileName = QFileDialog::getSaveFileName(this, tr("Save File"), "NewText.txt");
-    if (newFileName.isEmpty()) return;
-    else {
-        isSaved = false;
-        fileName = newFileName;
-        on_actionSave_triggered();
-    }
+    myTextPlane* plainText = (myTextPlane*)mdiArea->activeSubWindow()->widget();
+
+    plainText->saveAs();
+
+    qDebug()<<"ACTION SAVE AS";
 }
 
 void MainWindow::on_actionHelp_triggered()
@@ -218,32 +222,30 @@ void MainWindow::on_actionHelp_triggered()
 
 void MainWindow::onTextChanged()
 {
-    if (isSaved)
+    myTextPlane* planeTextEdit = (myTextPlane*) sender();
+    if (planeTextEdit == nullptr)
     {
-    windowtitle += "*";
-    this->setWindowTitle(windowtitle);
-    isSaved = false;
+        qDebug() << "ERROR! planeTextEdit is null";
+        return;
+    }
+    if (planeTextEdit->getIsSaved())
+    {
+    QString newTitle = planeTextEdit->windowTitle() += "*";
+    planeTextEdit->setWindowTitle(newTitle);
+    planeTextEdit->setIsSaved(false);
     }
 }
 
-
 void MainWindow::on_actionEnglish_triggered()
 {
-    qDebug() << "English";
     translator.load(":/translations/QtLangage_en.qm");
     qApp->installTranslator(&translator);
 }
 
 void MainWindow::on_actionRussian_triggered()
 {
-    qDebug() << "Russian";
     translator.load(":/translations/QtLangage_ru.qm");
     qApp->installTranslator(&translator);
-}
-
-void MainWindow::on_tool_signal(QString text)
-{
-    plainTextEdit->appendPlainText(text);
 }
 
 void MainWindow::changeEvent(QEvent *event)
@@ -255,7 +257,6 @@ void MainWindow::changeEvent(QEvent *event)
     }
 }
 
-
 void MainWindow::on_actionDefault_triggered()
 {
     qApp->setPalette(*whitePalette);
@@ -264,4 +265,77 @@ void MainWindow::on_actionDefault_triggered()
 void MainWindow::on_actionDark_triggered()
 {
     qApp->setPalette(*darkPalette);
+}
+
+void MainWindow::planeClosed(QCloseEvent* event)
+{
+    event->ignore();
+    myTextPlane *textPlain = (myTextPlane*)sender();
+    qDebug()<<"recieve Plane closed signal (" << textPlain->getFileName() << ")";
+    if (textPlain->getIsSaved()) event->accept();
+    else
+    {
+        QMessageBox::StandardButton reply;
+
+        QString question = tr("Do you want to save ");
+        question += textPlain->windowTitle();
+        question += "?";
+
+        reply = QMessageBox::question(this, tr("Unsaved document"), question,
+                                                QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
+        if (reply == QMessageBox::Yes)
+        {
+            on_actionSave_triggered();
+            event->accept();
+        }
+        else if (reply == QMessageBox::No)
+        {
+            event->accept();
+        }
+        else if (reply == QMessageBox::Cancel)
+        {
+            event->ignore();
+        }
+    }
+}
+
+void MainWindow::on_actionSave_All_triggered()
+{
+    qDebug()<<"Save all...";
+
+    if (mdiArea->subWindowList().count() > 0)
+    {
+        for (int i = 0; i < mdiArea->subWindowList().count(); ++i)
+        {
+
+            myTextPlane* textPlane = (myTextPlane*)mdiArea->subWindowList().at(i)->widget();
+            textPlane->save();
+        }
+    }
+
+}
+
+void MainWindow::changePlaineTextWindow()
+{
+    if ((mdiArea->subWindowList().count()>0) && (mdiArea->isActiveWindow()))
+    {
+        myTextPlane* textPlane = (myTextPlane*)mdiArea->activeSubWindow()->widget();
+        setWindowTitle(textPlane->windowTitle());
+    }
+
+}
+
+void MainWindow::on_actionPrint_triggered()
+{
+    QMdiSubWindow* activeWindow = mdiArea->activeSubWindow();
+    if (!activeWindow) return;
+    QWidget *wgt = activeWindow->widget();
+    QTextEdit* tEdit = (QTextEdit*)wgt;
+
+
+    QPrinter printer;
+    QPrintDialog dlg(&printer, this);
+    dlg.setWindowTitle("Print");
+    if (dlg.exec() != QDialog::Accepted) return;
+    tEdit->print(&printer);
 }

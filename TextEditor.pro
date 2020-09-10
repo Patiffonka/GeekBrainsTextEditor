@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -18,11 +18,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    toolswidget.cpp
+    mytextplane.cpp
 
 HEADERS += \
     mainwindow.h \
-    toolswidget.h
+    mytextplane.h
 
 FORMS += \
     mainwindow.ui
