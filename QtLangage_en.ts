@@ -145,17 +145,17 @@
     <message>
         <location filename="mainwindow.ui" line="153"/>
         <source>Save All</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="158"/>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="161"/>
         <source>Ctrl+P</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="28"/>
@@ -166,22 +166,22 @@
     <message>
         <location filename="mainwindow.cpp" line="85"/>
         <source>Unsaved documents</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="85"/>
         <source>You have unsaved documents. Do you want to save all documents?</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="137"/>
         <source>New document</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="279"/>
         <source>Do you want to save </source>
-        <translation type="unfinished"></translation>
+        <translation>Do you want to save?</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="283"/>
@@ -199,17 +199,17 @@
     <message>
         <location filename="mytextplane.cpp" line="45"/>
         <source>Can&apos;t write file</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mytextplane.cpp" line="57"/>
         <source>New document(</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mytextplane.cpp" line="60"/>
         <source>Save File</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 </TS>

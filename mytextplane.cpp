@@ -3,6 +3,8 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QMenu>
+
 
 myTextPlane::myTextPlane()
 {
@@ -66,6 +68,41 @@ void myTextPlane::saveAs()
         qDebug()<<filename;
         save();
     }
+}
+
+void myTextPlane::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu* menu = createStandardContextMenu(event->pos());
+    QList<QAction*> actions = menu->actions();
+    int position = 0;
+
+    //Copy format Action button
+    for (int i=0; i<actions.count(); ++i)
+    {
+        if (menu->actions().at(i)->objectName() == "edit-paste")
+        {
+            position = i;
+            break;
+        }
+    }
+    QAction* copyFormatAction = new QAction("Copy Format");
+    QAction* pasteFormatAction = new QAction("Paste Format");
+    menu->insertAction(actions[position+1], copyFormatAction);
+    menu->insertAction(actions[position+1], pasteFormatAction);
+    connect (copyFormatAction, &QAction::triggered, this, &myTextPlane::copyFormat);
+    connect (pasteFormatAction, &QAction::triggered, this, &myTextPlane::pasteFormat);
+
+    QAction* choosedAction = menu->exec(event->globalPos());
+}
+
+void myTextPlane::copyFormatSlot()
+{
+    emit copyFormat();
+}
+
+void myTextPlane::pasteFormatSlot()
+{
+    emit pasteFormat();
 }
 
 

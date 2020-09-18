@@ -18,11 +18,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    mytextplane.cpp
+    mytextplane.cpp \
+    toolbar.cpp
 
 HEADERS += \
     mainwindow.h \
-    mytextplane.h
+    mytextplane.h \
+    toolBar.h
 
 FORMS += \
     mainwindow.ui

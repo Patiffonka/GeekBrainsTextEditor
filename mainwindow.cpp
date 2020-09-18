@@ -10,6 +10,12 @@
 #include <QFileInfo>
 #include <QPrinter>
 #include <QPrintDialog>
+#include <QMenuBar>
+#include <QAction>
+#include <QIcon>
+#include "toolBar.h"
+#include <QFont>
+#include <QFontDialog>
 
 
 
@@ -40,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->actionRussian->setText(tr("Russian"));
     ui->actionHelp->setText(tr("Help"));
 
-    QHBoxLayout *layout = new QHBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
 
     mdiArea = new QMdiArea(this);
 
@@ -50,6 +56,14 @@ MainWindow::MainWindow(QWidget *parent)
     mdiArea->setTabsClosable(true);
     connect (mdiArea, &QMdiArea::subWindowActivated, this, &MainWindow::changePlaineTextWindow);
 
+    toolBar* toolbar = new toolBar();
+    toolbar->addAction("123");  //WHY?
+    connect (toolbar, &toolBar::alignLeftSignal, this, &MainWindow::alignLeft);
+    connect (toolbar, &toolBar::alignRightSignal, this, &MainWindow::alignRight);
+    connect (toolbar, &toolBar::alignCenterSignal, this, &MainWindow::alignCenter);
+    connect (toolbar, &toolBar::fontSignal, this, &MainWindow::font);
+
+    layout->addWidget(toolbar);
     layout->addWidget(mdiArea);
 
     QWidget *wgt = new QWidget(this);
@@ -59,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     setupPalette();
     qApp->setPalette(*whitePalette);
 
-    //setStyleSheet("QTabBar::tab { max-width: 100px; }");
+
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -132,6 +146,7 @@ void MainWindow::NewDocument()
     QMdiSubWindow* newSubwindow = mdiArea->addSubWindow(new myTextPlane);
     newSubwindow->show();
     myTextPlane* newPlainText = (myTextPlane*)newSubwindow->widget();
+
     newPlainText->setIsSaved(true);
     newPlainText->setFileName("unassigned");
     newPlainText->setPtr(newPlainText);
@@ -141,6 +156,8 @@ void MainWindow::NewDocument()
     newDocName += QString::number(newPlainText->getNumber());
     newPlainText->setWindowTitle(newDocName);
     setWindowTitle(newPlainText->windowTitle());
+    connect (newPlainText, &myTextPlane::copyFormat, this, &MainWindow::copyFormat);
+    connect (newPlainText, &myTextPlane::pasteFormat, this, &MainWindow::pasteFormat);
     connect (newPlainText, &QPlainTextEdit::textChanged, this, &MainWindow::onTextChanged);
     connect (newPlainText, &myTextPlane::closed, this, &MainWindow::planeClosed);
 }
@@ -338,4 +355,53 @@ void MainWindow::on_actionPrint_triggered()
     dlg.setWindowTitle("Print");
     if (dlg.exec() != QDialog::Accepted) return;
     tEdit->print(&printer);
+}
+
+void MainWindow::alignLeft()
+{
+    qDebug() << "alignLeft signal";
+    QPlainTextEdit* textEdit = (QPlainTextEdit*)mdiArea->activeSubWindow()->widget();
+}
+
+void MainWindow::alignRight()
+{
+    qDebug() << "alignLRight signal";
+}
+
+void MainWindow::alignCenter()
+{
+    qDebug() << "alignCenter signal";
+}
+
+void MainWindow::font()
+{
+    qDebug() << "font signal";
+
+        QPlainTextEdit* textEdit = (QPlainTextEdit*)mdiArea->activeSubWindow()->widget();
+        QFont font = textEdit->textCursor().charFormat().font();
+        QFontDialog fntDlg(font, this);
+        bool b[] = {true};
+        font = fntDlg.getFont(b);
+        if (b[0])
+        {
+            qDebug() << "B = TRUE";
+            QTextCharFormat fmt = textEdit->textCursor().charFormat();
+            fmt.setFont(font);
+            textEdit->textCursor().setCharFormat(fmt);
+        }
+
+}
+
+void MainWindow::copyFormat()
+{
+    qDebug() << "copyFormat signal";
+    QPlainTextEdit* textEdit = (QPlainTextEdit*)mdiArea->activeSubWindow()->widget();
+    format = textEdit->textCursor().charFormat();
+}
+
+void MainWindow::pasteFormat()
+{
+    qDebug() << "pasteFormat signal";
+    QPlainTextEdit* textEdit = (QPlainTextEdit*)mdiArea->activeSubWindow()->widget();
+    textEdit->textCursor().setCharFormat(format);
 }

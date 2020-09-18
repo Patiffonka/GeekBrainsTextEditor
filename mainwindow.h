@@ -6,6 +6,7 @@
 #include <QTranslator>
 #include <QMdiArea>
 #include <mytextplane.h>
+#include <QTextCharFormat>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -41,6 +42,13 @@ private slots:
 
     void on_actionPrint_triggered();
 
+    void alignLeft();
+    void alignRight();
+    void alignCenter();
+    void font();
+    void copyFormat();
+    void pasteFormat();
+
 private:
     Ui::MainWindow *ui;
     QString windowtitle;
@@ -56,13 +64,17 @@ private:
     QList<myTextPlane*> TextPlains;
     QMdiSubWindow* activeWindow;
     bool saveAsMode;
+    QTextCharFormat format;
+
 
     void NewDocument();
     void closeEvent(QCloseEvent *event) override;
     void setupPalette();
 
+
 protected:
     void changeEvent(QEvent* event) override;
+
 
 };
 #endif // MAINWINDOW_H

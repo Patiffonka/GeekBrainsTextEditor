@@ -9,23 +9,15 @@
 class myTextPlane : public QPlainTextEdit
 {
     Q_OBJECT
+
 public:
     myTextPlane();
+
     QFile file;
-
-
-private:
-    QString filename;
-    bool isSaved;
-    myTextPlane* ptr;
-    int number;
-
-
-public:
     void setFileName(QString name) {filename = name;}
     void setIsSaved (bool value) {isSaved = value;}
     QString getFileName() {return filename;}
-    bool getIsSaved() {return isSaved;}   
+    bool getIsSaved() {return isSaved;}
     void closeEvent(QCloseEvent *event) override;
     void setPtr(myTextPlane* newPtr) { ptr = newPtr; }
     myTextPlane* getPtr() { return ptr; }
@@ -34,8 +26,21 @@ public:
     void setNumber(int n) {number = n;}
     int getNumber() {return number;}
 
+private:
+    QString filename;
+    bool isSaved;
+    myTextPlane* ptr;
+    int number;
+    void contextMenuEvent(QContextMenuEvent *event) override;
+
+private slots:
+    void copyFormatSlot();
+    void pasteFormatSlot();
+
 signals:
     void closed(QCloseEvent*);
+    void copyFormat();
+    void pasteFormat();
 };
 
 #endif // MYTEXTPLANE_H

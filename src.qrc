@@ -6,4 +6,10 @@
         <file>QtLangage_en.qm</file>
         <file>QtLangage_ru.qm</file>
     </qresource>
+    <qresource prefix="/img">
+        <file>img/align_left.png</file>
+        <file>img/align_center.png</file>
+        <file>img/align_right.png</file>
+        <file>img/font.png</file>
+    </qresource>
 </RCC>

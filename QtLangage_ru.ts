@@ -145,17 +145,17 @@
     <message>
         <location filename="mainwindow.ui" line="153"/>
         <source>Save All</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить всё</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="158"/>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation>Печать</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="161"/>
         <source>Ctrl+P</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="28"/>
@@ -166,22 +166,22 @@
     <message>
         <location filename="mainwindow.cpp" line="85"/>
         <source>Unsaved documents</source>
-        <translation type="unfinished"></translation>
+        <translation>Не сохранённый документ</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="85"/>
         <source>You have unsaved documents. Do you want to save all documents?</source>
-        <translation type="unfinished"></translation>
+        <translation>Остались не сохранённые документы. Сохранить всё?</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="137"/>
         <source>New document</source>
-        <translation type="unfinished"></translation>
+        <translation>Новый документ</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="279"/>
         <source>Do you want to save </source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить?</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="283"/>
@@ -217,17 +217,17 @@ Are you sure you want to create new document?</source>
     <message>
         <location filename="mytextplane.cpp" line="45"/>
         <source>Can&apos;t write file</source>
-        <translation type="unfinished">Не могу записать файл</translation>
+        <translation>Не могу записать файл</translation>
     </message>
     <message>
         <location filename="mytextplane.cpp" line="57"/>
         <source>New document(</source>
-        <translation type="unfinished"></translation>
+        <translation>Новый документ</translation>
     </message>
     <message>
         <location filename="mytextplane.cpp" line="60"/>
         <source>Save File</source>
-        <translation type="unfinished">Сохранить</translation>
+        <translation>Сохранить</translation>
     </message>
 </context>
 <context>
